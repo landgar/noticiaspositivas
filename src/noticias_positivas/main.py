@@ -14,7 +14,7 @@ from .configuracion import cargar
 from .recopilacion import recopilar
 from .puntuacion import seleccionar
 from .redaccion import generar_titulo, redactar
-from .publicacion import crear_noticias_txt
+from .publicacion import crear_noticias_txt, publicar_cambios_diarios
 from .traduccion import traducir_texto
 from .modelos import Noticia
 
@@ -61,11 +61,23 @@ def ejecutar(configuracion: dict) -> None:
 
 def main() -> None:
     load_dotenv()
-    parser = argparse.ArgumentParser(description="Genera un fichero TXT diario con las noticias positivas")
+    parser = argparse.ArgumentParser(description="Genera y publica diariamente las noticias positivas")
     parser.add_argument("--config", default="config/configuracion.yml")
+    parser.add_argument(
+        "--sin-publicar",
+        action="store_true",
+        help="Genera la edición sin hacer commit ni push",
+    )
     argumentos = parser.parse_args()
-    ejecutar(cargar(argumentos.config))
+    configuracion = cargar(argumentos.config)
+    ejecutar(configuracion)
 
-
-if __name__ == "__main__":
-    main()
+    if not argumentos.sin_publicar:
+        ruta_repositorio = Path(configuracion.get("ruta_repositorio", ".")).resolve()
+        try:
+            publicar_cambios_diarios(ruta_repositorio)
+        except Exception as error:
+            raise RuntimeError(
+                "La edición se generó, pero no pudo publicarse en GitHub. "
+                "Comprueba Git, la autenticación y que 'origin' apunta al repositorio."
+            ) from error

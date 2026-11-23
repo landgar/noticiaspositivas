@@ -44,6 +44,10 @@ En Windows puede usar el Programador de tareas ejecutando:
 C:\ruta\noticiaspositivas\.venv\Scripts\python.exe C:\ruta\noticiaspositivas\main.py
 ```
 
+Por defecto `main.py` genera la edición y hace commit/push a `origin/main`. Para usarlo en GitHub Actions sin publicar desde el runner, añade `--sin-publicar`.
+
+Para Windows, `ejecutar_y_publicar.bat` ejecuta `main.py` y muestra directamente los resultados.
+
 Por el momento no se realiza ningún commit, push ni publicación externa.
 
 ## Despliegue en GitHub Pages
