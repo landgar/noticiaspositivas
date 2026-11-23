@@ -111,29 +111,45 @@ def ejecutar_git(repositorio: Path, *argumentos: str) -> subprocess.CompletedPro
     git = shutil.which("git")
     if not git:
         raise RuntimeError("Git no está disponible en PATH. Instala Git for Windows.")
-    return subprocess.run(
-        [git, "-C", str(repositorio), *argumentos],
-        check=argumentos != ("diff", "--cached", "--quiet"),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-    )
+
+    comprobar_silencioso = argumentos == ("diff", "--cached", "--quiet")
+    try:
+        resultado = subprocess.run(
+            [git, "-C", str(repositorio), *argumentos],
+            check=not comprobar_silencioso,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            timeout=120,
+        )
+    except subprocess.CalledProcessError as error:
+        detalle = (error.stderr or error.stdout or str(error)).strip()
+        raise RuntimeError(
+            f"Git falló al ejecutar '{' '.join(argumentos)}': {detalle}"
+        ) from error
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(
+            f"Git excedió el tiempo al ejecutar '{' '.join(argumentos)}'."
+        ) from error
+
+    return resultado
 
 
 def publicar_cambios_diarios(ruta_repositorio: str | Path = ".") -> bool:
     """Sincroniza, añade la edición diaria, crea un commit y publica en main."""
     repositorio = Path(ruta_repositorio).resolve()
 
-    ejecutar_git(repositorio, "pull", "--ff-only", "origin", "main")
+    ejecutar_git(repositorio, "fetch", "origin", "main")
     ejecutar_git(repositorio, "add", "-A")
 
     pendientes = ejecutar_git(repositorio, "diff", "--cached", "--quiet")
-    if pendientes.returncode == 0:
-        print("No hay cambios nuevos que publicar.")
-        return False
+    if pendientes.returncode != 0:
+        fecha = datetime.now().strftime("%Y-%m-%d")
+        ejecutar_git(repositorio, "commit", "-m", f"Publicar noticias positivas del {fecha}")
 
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    ejecutar_git(repositorio, "commit", "-m", f"Publicar noticias positivas del {fecha}")
+    ejecutar_git(repositorio, "merge", "--no-edit", "origin/main")
     ejecutar_git(repositorio, "push", "origin", "main")
-    print("Cambios publicados en origin/main.")
+
+    remoto = ejecutar_git(repositorio, "remote", "get-url", "origin")
+    print(f"Cambios publicados en {remoto.stdout.strip()} (rama main).")
     return True

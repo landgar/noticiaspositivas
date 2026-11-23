@@ -111,7 +111,10 @@ def main() -> None:
 
     try:
         while True:
-            ejecutar_y_publicar(configuracion, argumentos.sin_publicar)
+            try:
+                ejecutar_y_publicar(configuracion, argumentos.sin_publicar)
+            except RuntimeError as error:
+                print(f"Aviso: {error}")
             siguiente = siguiente_fecha_ejecucion(datetime.now(zona), hora)
             segundos = max(1, (siguiente - datetime.now(zona)).total_seconds())
             print(f"Próxima ejecución: {siguiente.strftime('%d/%m/%Y %H:%M')} ({zona_horaria})")

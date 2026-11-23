@@ -48,7 +48,22 @@ En Windows puede usar el Programador de tareas ejecutando:
 C:\ruta\noticiaspositivas\.venv\Scripts\python.exe C:\ruta\noticiaspositivas\main.py
 ```
 
-Por defecto `main.py` genera la edición y hace commit/push a `origin/main`, y luego permanece a la espera. Para usarlo en GitHub Actions sin publicar desde el runner, usa `--una-vez --sin-publicar`.
+Por defecto `main.py` genera la edición y hace commit/push a `origin/main`, y luego permanece a la espera. Si la publicación falla, muestra el error de Git y reintenta al día siguiente. Para usarlo en GitHub Actions sin publicar desde el runner, usa `--una-vez --sin-publicar`.
+
+Antes de ejecutar en otro ordenador, autentica una vez:
+
+```bat
+gh auth login --hostname github.com --git-protocol https --web
+gh auth setup-git
+```
+
+Después prueba:
+
+```bat
+git remote get-url origin
+git fetch origin main
+git push origin main
+```
 
 Para Windows, `ejecutar_y_publicar.bat` inicia el modo continuo y muestra directamente los resultados.
 
