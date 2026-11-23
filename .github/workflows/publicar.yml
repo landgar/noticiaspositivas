@@ -30,7 +30,7 @@ jobs:
         run: python -m pip install --upgrade pip -e .
 
       - name: Generar edición diaria
-        run: python main.py --sin-publicar
+        run: python main.py --una-vez --sin-publicar
 
       - name: Preparar página principal
         shell: bash

@@ -8,6 +8,10 @@ Aplicación Python que recopila RSS de medios europeos importantes, selecciona l
 python main.py
 ```
 
+Sin argumentos, `main.py` crea una edición inmediatamente, la publica y permanece en espera hasta el mismo horario del día siguiente. El bucle usa `hora_generacion_diaria` de la configuración (09:00 por defecto).
+
+Usa `python main.py --una-vez` para generar y terminar en una sola ejecución. Para GitHub Actions se recomienda `python main.py --una-vez --sin-publicar`.
+
 El script crea una edición diaria en texto y una página web con estos nombres:
 
 ```text
@@ -44,11 +48,9 @@ En Windows puede usar el Programador de tareas ejecutando:
 C:\ruta\noticiaspositivas\.venv\Scripts\python.exe C:\ruta\noticiaspositivas\main.py
 ```
 
-Por defecto `main.py` genera la edición y hace commit/push a `origin/main`. Para usarlo en GitHub Actions sin publicar desde el runner, añade `--sin-publicar`.
+Por defecto `main.py` genera la edición y hace commit/push a `origin/main`, y luego permanece a la espera. Para usarlo en GitHub Actions sin publicar desde el runner, usa `--una-vez --sin-publicar`.
 
-Para Windows, `ejecutar_y_publicar.bat` ejecuta `main.py` y muestra directamente los resultados.
-
-Por el momento no se realiza ningún commit, push ni publicación externa.
+Para Windows, `ejecutar_y_publicar.bat` inicia el modo continuo y muestra directamente los resultados.
 
 ## Despliegue en GitHub Pages
 

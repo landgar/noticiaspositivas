@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from noticias_positivas.modelos import Noticia
 from noticias_positivas.publicacion import crear_noticias_html, crear_noticias_txt
 from noticias_positivas.recopilacion import fuente_europea
+from noticias_positivas.main import siguiente_fecha_ejecucion
 
 
 def test_crea_fichero_txt_diario(tmp_path):
@@ -91,8 +92,19 @@ def test_crea_pagina_html_periodistica(tmp_path):
     assert 'src="https://example.com/foto.jpg"' in contenido
 
 
+def test_calcula_siguiente_edicion_al_dia_siguiente():
+    desde = datetime(2026, 11, 23, 19, 30, tzinfo=ZoneInfo("Europe/Madrid"))
+    siguiente = siguiente_fecha_ejecucion(desde, "09:00")
+    assert siguiente == datetime(2026, 11, 24, 9, 0, tzinfo=ZoneInfo("Europe/Madrid"))
+
+
 def test_solo_admite_fuentes_europeas():
     assert fuente_europea({"pais": "España", "region": "Europa"})
     assert fuente_europea({"pais": "Francia", "region": "Europa"})
     assert not fuente_europea({"pais": "Canadá", "region": "América"})
     assert not fuente_europea({"pais": "Estados Unidos", "region": "América"})
+
+
+def test_siguiente_fecha_ejecucion():
+    fecha = siguiente_fecha_ejecucion(datetime(2026, 11, 23, tzinfo=ZoneInfo("Europe/Madrid")))
+    assert fecha == datetime(2026, 11, 24, 9, 0, tzinfo=ZoneInfo("Europe/Madrid"))

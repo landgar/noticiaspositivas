@@ -1,5 +1,6 @@
 idioma: es
 zona_horaria: Europe/Madrid
+hora_generacion_diaria: "09:00"
 cantidad_noticias: 10
 ventana_horas: 24
 usar_resumenes: true

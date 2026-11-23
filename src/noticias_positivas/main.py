@@ -1,5 +1,6 @@
 import argparse
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -17,6 +18,16 @@ from .redaccion import generar_titulo, redactar
 from .publicacion import crear_noticias_txt, publicar_cambios_diarios
 from .traduccion import traducir_texto
 from .modelos import Noticia
+
+
+def siguiente_fecha_ejecucion(fecha_actual: datetime, hora: str = "09:00") -> datetime:
+    """Devuelve siempre el mismo horario del día siguiente."""
+    horas, minutos = (int(parte) for parte in hora.split(":"))
+    if horas < 0 or horas > 23 or minutos < 0 or minutos > 59:
+        raise ValueError("La hora diaria debe tener formato HH:MM y estar entre 00:00 y 23:59.")
+
+    siguiente = fecha_actual + timedelta(days=1)
+    return siguiente.replace(hour=horas, minute=minutos, second=0, microsecond=0)
 
 
 def ejecutar(configuracion: dict) -> None:
@@ -59,6 +70,20 @@ def ejecutar(configuracion: dict) -> None:
     print(f"Página: {ruta_html}")
 
 
+def ejecutar_y_publicar(configuracion: dict, sin_publicar: bool = False) -> None:
+    ejecutar(configuracion)
+
+    if not sin_publicar:
+        ruta_repositorio = Path(configuracion.get("ruta_repositorio", ".")).resolve()
+        try:
+            publicar_cambios_diarios(ruta_repositorio)
+        except Exception as error:
+            raise RuntimeError(
+                "La edición se generó, pero no pudo publicarse en GitHub. "
+                "Comprueba Git, la autenticación y que 'origin' apunta al repositorio."
+            ) from error
+
+
 def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser(description="Genera y publica diariamente las noticias positivas")
@@ -68,16 +93,29 @@ def main() -> None:
         action="store_true",
         help="Genera la edición sin hacer commit ni push",
     )
+    parser.add_argument(
+        "--una-vez",
+        action="store_true",
+        help="Genera una sola edición y termina",
+    )
     argumentos = parser.parse_args()
     configuracion = cargar(argumentos.config)
-    ejecutar(configuracion)
 
-    if not argumentos.sin_publicar:
-        ruta_repositorio = Path(configuracion.get("ruta_repositorio", ".")).resolve()
-        try:
-            publicar_cambios_diarios(ruta_repositorio)
-        except Exception as error:
-            raise RuntimeError(
-                "La edición se generó, pero no pudo publicarse en GitHub. "
-                "Comprueba Git, la autenticación y que 'origin' apunta al repositorio."
-            ) from error
+    if argumentos.una_vez:
+        ejecutar_y_publicar(configuracion, argumentos.sin_publicar)
+        return
+
+    zona_horaria = configuracion.get("zona_horaria", "Europe/Madrid")
+    zona = ZoneInfo(zona_horaria)
+    hora = configuracion.get("hora_generacion_diaria", "09:00")
+
+    try:
+        while True:
+            ejecutar_y_publicar(configuracion, argumentos.sin_publicar)
+            siguiente = siguiente_fecha_ejecucion(datetime.now(zona), hora)
+            segundos = max(1, (siguiente - datetime.now(zona)).total_seconds())
+            print(f"Próxima ejecución: {siguiente.strftime('%d/%m/%Y %H:%M')} ({zona_horaria})")
+            print("Esperando a la siguiente edición diaria...")
+            time.sleep(segundos)
+    except KeyboardInterrupt:
+        print("Ejecución diaria detenida por el usuario.")
