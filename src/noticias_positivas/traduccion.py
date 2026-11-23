@@ -8,24 +8,11 @@ import requests
 _CACHE_TRADUCCION: dict[tuple[str, str], str] = {}
 
 
-def ya_esta_en_espanol(texto: str) -> bool:
-    palabras_espanolas = {
-        "el", "la", "los", "las", "de", "del", "en", "por", "para",
-        "con", "sin", "una", "un", "unos", "unas", "que", "se",
-        "más", "como", "sobre", "tras", "desde", "es", "está", "son",
-    }
-    palabras = set(re.findall(r"[^\W\d_]+", texto.lower(), flags=re.UNICODE))
-    coincidencias = palabras & palabras_espanolas
-    return bool(re.search(r"[áéíóúüñ¿¡]", texto, flags=re.UNICODE)) or len(coincidencias) >= 3
-
-
 def traducir_texto(texto: str, url_servicio: str = "") -> str:
     """Traduce texto a español. Devuelve el original si el servicio falla."""
     texto = texto.strip()
     if not texto:
         return ""
-    if ya_esta_en_espanol(texto):
-        return texto
 
     if not url_servicio:
         url_servicio = "https://api.mymemory.translated.net/get"
@@ -38,7 +25,7 @@ def traducir_texto(texto: str, url_servicio: str = "") -> str:
         if "mymemory.translated.net" in url_servicio:
             separador = "&" if "?" in url_servicio else "?"
             texto_consulta = texto[:480]
-            url = f"{url_servicio}{separador}q={quote(texto_consulta, safe='')}&langpair=en|es"
+            url = f"{url_servicio}{separador}q={quote(texto_consulta, safe='')}&langpair=Autodetect|es"
         else:
             separador = "&" if "?" in url_servicio else "?"
             url = (

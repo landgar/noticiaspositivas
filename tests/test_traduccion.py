@@ -18,6 +18,30 @@ def test_traduce_texto(monkeypatch):
     assert resultado == "Gran avance científico"
 
 
+def test_traduce_texto_espanol_sin_pasar_por_heuristico(monkeypatch):
+    import noticias_positivas.traduccion as modulo
+
+    urls = []
+
+    class RespuestaEspanol:
+        def raise_for_status(self):
+            pass
+
+        def json(self):
+            return {"responseData": {"translatedText": "Avance español confirmado"}}
+
+    def responder(url, *args, **kwargs):
+        urls.append(url)
+        return RespuestaEspanol()
+
+    modulo._CACHE_TRADUCCION.clear()
+    monkeypatch.setattr(modulo.requests, "get", responder)
+
+    resultado = traducir_texto("Avance español confirmado", "https://api.mymemory.translated.net/get")
+    assert resultado == "Avance español confirmado"
+    assert "langpair=Autodetect|es" in urls[0]
+
+
 def test_texto_vacio_no_llama_al_servicio(monkeypatch):
     import noticias_positivas.traduccion as modulo
 
