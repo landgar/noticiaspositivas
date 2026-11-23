@@ -1,6 +1,6 @@
 # Noticias positivas
 
-Aplicación Python que recopila RSS de medios europeos importantes, selecciona las noticias más positivas del día y crea una edición diaria en formato TXT y HTML.
+Aplicación Python que recopila RSS de medios españoles importantes, selecciona las noticias más positivas del día y crea una edición diaria en español en formato TXT y HTML.
 
 ## Uso
 
@@ -21,14 +21,14 @@ salidas/YYYY-MM-DD-noticias-positivas.html
 
 La página HTML utiliza una maquetación editorial periódica, incluye fotografías disponibles en el RSS y enlaza cada titular con su fuente original. Si se ejecuta varias veces el mismo día, se actualizan ambos archivos.
 
-Solo se procesan fuentes declaradas en la configuración con `region: Europa`. Cada fuente incluye el país correspondiente para conservar variedad europea y evitar medios de América, Asia, África u Oceanía.
+Solo se procesan fuentes declaradas en la configuración con `pais: España`, `region: España` e `idioma: es`. Además, se rechazan titulares y resúmenes que no tengan suficiente contenido reconocible en español. El sistema no utiliza medios de otros países ni feeds escritos principalmente en otro idioma.
 
 ## Configuración
 
 - `cantidad_noticias`: número de noticias incluidas.
 - `ventana_horas`: antigüedad máxima de las entradas RSS.
 - `ruta_repositorio`: ruta local del repositorio; por defecto `.`.
-- `fuentes`: fuentes RSS europeas procesadas; deben indicar `pais` y `region: Europa`.
+- `fuentes`: fuentes RSS españolas procesadas; deben indicar `pais: España`, `region: España` e `idioma: es`.
 - `url_traduccion`: servicio utilizado para traducir titulares y resúmenes al español.
 
 Las opciones `RUTA_REPOSITORIO` y `URL_TRADUCCION` pueden definirse en el entorno.

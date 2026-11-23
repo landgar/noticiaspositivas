@@ -17,6 +17,12 @@ PaisesEuropeos = {
     "suecia", "suiza", "ucrania", "union europea", "unión europea",
 }
 
+PALABRAS_ESPANOLAS = {
+    "el", "la", "los", "las", "de", "del", "en", "por", "para",
+    "con", "sin", "una", "un", "que", "se", "es", "está", "como",
+    "más", "sobre", "tras", "desde", "tras", "su", "sus", "contra",
+}
+
 
 def limpiar_texto(texto: str) -> str:
     texto = re.sub(r"<[^>]+>", " ", texto or "")
@@ -32,18 +38,26 @@ def fecha_entrada(entrada) -> datetime:
     return datetime.now(timezone.utc)
 
 
-def fuente_europea(fuente: dict) -> bool:
-    """Acepta una fuente cuando está declarada explícitamente como europea."""
-    region = str(fuente.get("region", fuente.get("region_geografica", ""))).strip().lower()
+def fuente_espanola(fuente: dict) -> bool:
+    """Acepta únicamente medios declarados españoles y escritos en español."""
     pais = str(fuente.get("pais", "")).strip().lower()
+    region = str(fuente.get("region", "")).strip().lower()
+    idioma = str(fuente.get("idioma", "")).strip().lower()
 
-    if region:
-        if region not in {"europa", "europe", "eu", "union europea", "unión europea"}:
-            return False
-    if pais:
-        if pais not in PaisesEuropeos:
-            return False
-    return bool(region or pais)
+    return (
+        pais in {"espana", "españa"}
+        and region in {"espana", "españa"}
+        and idioma in {"es", "español", "spanish"}
+    )
+
+
+def texto_en_espanol(texto: str) -> bool:
+    """Heurístico conservador para rechazar titulares que no estén en español."""
+    texto = html.unescape(texto or "").lower()
+    palabras = set(re.findall(r"[^\W\d_]+", texto, flags=re.UNICODE))
+    coincidencias = palabras & PALABRAS_ESPANOLAS
+    tiene_acento_espanol = bool(re.search(r"[áéíóúüñ¿¡]", texto))
+    return tiene_acento_espanol or len(coincidencias) >= 2
 
 
 def extraer_imagen(entrada) -> str:
@@ -77,7 +91,7 @@ def recopilar(
     noticias: list[Noticia] = []
 
     for fuente in fuentes:
-        if not fuente_europea(fuente):
+        if not fuente_espanola(fuente):
             continue
 
         canal = feedparser.parse(fuente["rss"])
@@ -89,7 +103,7 @@ def recopilar(
             titulo = limpiar_texto(entrada.get("title", ""))
             resumen = limpiar_texto(entrada.get("summary", entrada.get("description", "")))
             enlace = entrada.get("link", "")
-            if titulo and enlace:
+            if titulo and enlace and texto_en_espanol(f"{titulo} {resumen}"):
                 noticias.append(Noticia(
                     titulo,
                     enlace,

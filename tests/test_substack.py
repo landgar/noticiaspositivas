@@ -3,7 +3,7 @@ from zoneinfo import ZoneInfo
 
 from noticias_positivas.modelos import Noticia
 from noticias_positivas.publicacion import crear_noticias_html, crear_noticias_txt
-from noticias_positivas.recopilacion import fuente_europea
+from noticias_positivas.recopilacion import fuente_espanola, texto_en_espanol
 from noticias_positivas.main import siguiente_fecha_ejecucion
 
 
@@ -98,11 +98,16 @@ def test_calcula_siguiente_edicion_al_dia_siguiente():
     assert siguiente == datetime(2026, 11, 24, 9, 0, tzinfo=ZoneInfo("Europe/Madrid"))
 
 
-def test_solo_admite_fuentes_europeas():
-    assert fuente_europea({"pais": "España", "region": "Europa"})
-    assert fuente_europea({"pais": "Francia", "region": "Europa"})
-    assert not fuente_europea({"pais": "Canadá", "region": "América"})
-    assert not fuente_europea({"pais": "Estados Unidos", "region": "América"})
+def test_solo_admite_fuentes_espanolas():
+    assert fuente_espanola({"pais": "España", "region": "España", "idioma": "es"})
+    assert not fuente_espanola({"pais": "Francia", "region": "Europa", "idioma": "fr"})
+    assert not fuente_espanola({"pais": "Estados Unidos", "region": "América", "idioma": "en"})
+
+
+def test_rechaza_noticias_sin_espanol_claro():
+    assert texto_en_espanol("La economía española crece con empleo")
+    assert texto_en_espanol("Nuevo avance contra el cáncer")
+    assert not texto_en_espanol("Breaking news and market update")
 
 
 def test_siguiente_fecha_ejecucion():
