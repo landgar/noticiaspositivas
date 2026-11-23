@@ -1,6 +1,8 @@
 from pathlib import Path
 from datetime import datetime
 import html
+import shutil
+import subprocess
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -103,3 +105,35 @@ def crear_noticias_txt(
 
     ruta.write_text("\n".join(contenido).rstrip() + "\n", encoding="utf-8")
     return ruta
+
+
+def ejecutar_git(repositorio: Path, *argumentos: str) -> subprocess.CompletedProcess:
+    git = shutil.which("git")
+    if not git:
+        raise RuntimeError("Git no está disponible en PATH. Instala Git for Windows.")
+    return subprocess.run(
+        [git, "-C", str(repositorio), *argumentos],
+        check=argumentos != ("diff", "--cached", "--quiet"),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+
+
+def publicar_cambios_diarios(ruta_repositorio: str | Path = ".") -> bool:
+    """Sincroniza, añade la edición diaria, crea un commit y publica en main."""
+    repositorio = Path(ruta_repositorio).resolve()
+
+    ejecutar_git(repositorio, "pull", "--ff-only", "origin", "main")
+    ejecutar_git(repositorio, "add", "-A")
+
+    pendientes = ejecutar_git(repositorio, "diff", "--cached", "--quiet")
+    if pendientes.returncode == 0:
+        print("No hay cambios nuevos que publicar.")
+        return False
+
+    fecha = datetime.now().strftime("%Y-%m-%d")
+    ejecutar_git(repositorio, "commit", "-m", f"Publicar noticias positivas del {fecha}")
+    ejecutar_git(repositorio, "push", "origin", "main")
+    print("Cambios publicados en origin/main.")
+    return True
