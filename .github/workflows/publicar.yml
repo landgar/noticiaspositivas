@@ -1,0 +1,59 @@
+name: Publicar edición diaria
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependencias
+        run: python -m pip install --upgrade pip -e .
+
+      - name: Generar edición diaria
+        run: python main.py
+
+      - name: Preparar página principal
+        shell: bash
+        run: |
+          mkdir -p public
+          archivo=$(ls -1t salidas/*-noticias-positivas.html 2>/dev/null | head -n 1)
+          test -n "$archivo"
+          cp "$archivo" public/index.html
+          cp -R salidas public/ediciones
+
+      - uses: actions/configure-pages@v5
+        id: pages
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  desplegar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deploy

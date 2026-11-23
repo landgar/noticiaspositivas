@@ -1,0 +1,2 @@
+[console_scripts]
+noticias-positivas = noticias_positivas.main:main

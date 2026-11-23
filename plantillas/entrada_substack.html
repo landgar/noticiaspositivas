@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"></head>
+<body>
+<h1>{{ titulo }}</h1>
+<p>Selección automática basada en fuentes públicas RSS, ordenada por señales positivas explícitas y deduplicada por titular.</p>
+{% for noticia in noticias %}
+<h2>{{ loop.index }}. {{ noticia.titulo }}</h2>
+{% if noticia.resumen %}<p>{{ noticia.resumen }}</p>{% endif %}
+<p><strong>{{ noticia.fuente }}</strong> · <a href="{{ noticia.enlace }}">Leer fuente original</a></p>
+{% endfor %}
+<hr>
+<p><em>Las noticias se presentan para informar y orientar, no para reproducirlas íntegramente. Enlaces a las fuentes originales.</em></p>
+</body>
+</html>

@@ -1,3 +1,51 @@
 # Noticias positivas
 
-Edicion diaria europea.
+Aplicación Python que recopila RSS de medios europeos importantes, selecciona las noticias más positivas del día y crea una edición diaria en formato TXT y HTML.
+
+## Uso
+
+```bash
+python main.py
+```
+
+El script crea una edición diaria en texto y una página web con estos nombres:
+
+```text
+salidas/YYYY-MM-DD-noticias-positivas.txt
+salidas/YYYY-MM-DD-noticias-positivas.html
+```
+
+La página HTML utiliza una maquetación editorial periódica, incluye fotografías disponibles en el RSS y enlaza cada titular con su fuente original. Si se ejecuta varias veces el mismo día, se actualizan ambos archivos.
+
+Solo se procesan fuentes declaradas en la configuración con `region: Europa`. Cada fuente incluye el país correspondiente para conservar variedad europea y evitar medios de América, Asia, África u Oceanía.
+
+## Configuración
+
+- `cantidad_noticias`: número de noticias incluidas.
+- `ventana_horas`: antigüedad máxima de las entradas RSS.
+- `ruta_repositorio`: ruta local del repositorio; por defecto `.`.
+- `fuentes`: fuentes RSS europeas procesadas; deben indicar `pais` y `region: Europa`.
+- `url_traduccion`: servicio utilizado para traducir titulares y resúmenes al español.
+
+Las opciones `RUTA_REPOSITORIO` y `URL_TRADUCCION` pueden definirse en el entorno.
+Si el servicio de traducción no responde, se conserva el texto original.
+
+## Programación diaria
+
+Ejemplo Linux cron:
+
+```cron
+0 9 * * * cd /ruta/noticiaspositivas && /ruta/noticiaspositivas/.venv/bin/python main.py >> /var/log/noticias-positivas.log 2>&1
+```
+
+En Windows puede usar el Programador de tareas ejecutando:
+
+```bat
+C:\ruta\noticiaspositivas\.venv\Scripts\python.exe C:\ruta\noticiaspositivas\main.py
+```
+
+Por el momento no se realiza ningún commit, push ni publicación externa.
+
+## Despliegue en GitHub Pages
+
+GitHub Actions puede generar la edición diariamente y desplegarla automáticamente en GitHub Pages. El flujo de trabajo usa el archivo HTML más reciente como `index.html`, de modo que la página principal siempre muestra la última edición. Las ediciones anteriores se conservan bajo `/ediciones/` en el sitio publicado.

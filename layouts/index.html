@@ -1,0 +1,10 @@
+{{ define "main" }}
+<h2>Últimas noticias positivas</h2>
+{{ range first 20 (where .Site.RegularPages "Section" "posts") }}
+<article>
+  <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+  <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2 de January de 2006" }}</time>
+  {{ .Summary }}
+</article>
+{{ end }}
+{{ end }}

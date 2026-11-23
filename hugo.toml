@@ -1,0 +1,9 @@
+baseURL = 'https://landgar.github.io/noticiaspositivas/'
+title = 'Noticias positivas'
+languageCode = 'es'
+defaultContentLanguage = 'es'
+paginate = 20
+
+[taxonomies]
+  category = 'categories'
+  tag = 'tags'

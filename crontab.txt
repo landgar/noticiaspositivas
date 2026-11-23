@@ -1,0 +1,1 @@
+0 9 * * * cd /ruta/noticiaspositivas && .venv/bin/python main.py >> /var/log/noticias-positivas.log 2>&1

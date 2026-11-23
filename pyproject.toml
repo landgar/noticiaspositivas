@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "noticias-positivas"
+version = "0.2.0"
+description = "Selección diaria de las 10 noticias más positivas y publicación en un blog Hugo"
+requires-python = ">=3.11"
+dependencies = [
+  "feedparser>=6.0",
+  "Jinja2>=3.1",
+  "PyYAML>=6.0",
+  "python-dotenv>=1.0",
+  "requests>=2.32",
+  "tzdata>=2024.1",
+]
+
+[project.optional-dependencies]
+desarrollo = ["pytest>=8.0", "ruff>=0.9"]
+
+[project.scripts]
+noticias-positivas = "noticias_positivas.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
