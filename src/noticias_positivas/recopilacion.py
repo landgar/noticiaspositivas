@@ -39,25 +39,14 @@ def fecha_entrada(entrada) -> datetime:
 
 
 def fuente_espanola(fuente: dict) -> bool:
-    """Acepta únicamente medios declarados españoles y escritos en español."""
+    """Acepta únicamente medios declarados españoles."""
     pais = str(fuente.get("pais", "")).strip().lower()
     region = str(fuente.get("region", "")).strip().lower()
-    idioma = str(fuente.get("idioma", "")).strip().lower()
 
     return (
         pais in {"espana", "españa"}
         and region in {"espana", "españa"}
-        and idioma in {"es", "español", "spanish"}
     )
-
-
-def texto_en_espanol(texto: str) -> bool:
-    """Heurístico conservador para rechazar titulares que no estén en español."""
-    texto = html.unescape(texto or "").lower()
-    palabras = set(re.findall(r"[^\W\d_]+", texto, flags=re.UNICODE))
-    coincidencias = palabras & PALABRAS_ESPANOLAS
-    tiene_acento_espanol = bool(re.search(r"[áéíóúüñ¿¡]", texto))
-    return tiene_acento_espanol or len(coincidencias) >= 2
 
 
 def extraer_imagen(entrada) -> str:
@@ -103,14 +92,13 @@ def recopilar(
             titulo = limpiar_texto(entrada.get("title", ""))
             resumen = limpiar_texto(entrada.get("summary", entrada.get("description", "")))
             enlace = entrada.get("link", "")
-            if titulo and enlace and texto_en_espanol(f"{titulo} {resumen}"):
-                noticias.append(Noticia(
-                    titulo,
-                    enlace,
-                    fuente["nombre"],
-                    resumen,
-                    publicada,
-                    imagen=extraer_imagen(entrada),
-                ))
+            noticias.append(Noticia(
+                titulo,
+                enlace,
+                fuente["nombre"],
+                resumen,
+                publicada,
+                imagen=extraer_imagen(entrada),
+            ))
 
     return noticias

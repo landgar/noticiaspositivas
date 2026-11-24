@@ -13,9 +13,5 @@ def cargar(ruta: str | Path = "config/configuracion.yml") -> dict:
         "RUTA_REPOSITORIO",
         configuracion.get("ruta_repositorio", "."),
     )
-    configuracion["url_traduccion"] = os.getenv(
-        "URL_TRADUCCION",
-        configuracion.get("url_traduccion", ""),
-    )
     configuracion["publicacion"] = {"subir_automaticamente": False}
     return configuracion

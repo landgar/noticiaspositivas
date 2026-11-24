@@ -9,4 +9,3 @@ def test_carga_configuracion():
     assert configuracion["fuentes"]
     assert all(fuente["region"].lower() == "españa" for fuente in configuracion["fuentes"])
     assert all(fuente["pais"].lower() == "españa" for fuente in configuracion["fuentes"])
-    assert all(fuente["idioma"].lower() in {"es", "español", "spanish"} for fuente in configuracion["fuentes"])

@@ -21,18 +21,17 @@ salidas/YYYY-MM-DD-noticias-positivas.html
 
 La página HTML utiliza una maquetación editorial periódica, incluye fotografías disponibles en el RSS y enlaza cada titular con su fuente original. Si se ejecuta varias veces el mismo día, se actualizan ambos archivos.
 
-Solo se procesan fuentes declaradas en la configuración con `pais: España`, `region: España` e `idioma: es`. Además, se rechazan titulares y resúmenes que no tengan suficiente contenido reconocible en español. El sistema no utiliza medios de otros países ni feeds escritos principalmente en otro idioma.
+Solo se procesan fuentes declaradas en la configuración con `pais: España` y `region: España`. Los titulares y resúmenes se conservan exactamente como aparecen en los RSS. El sistema no utiliza medios de otros países.
 
 ## Configuración
 
 - `cantidad_noticias`: número de noticias incluidas.
 - `ventana_horas`: antigüedad máxima de las entradas RSS.
-- `ruta_repositorio`: ruta local del repositorio; por defecto `.`.
-- `fuentes`: fuentes RSS españolas procesadas; deben indicar `pais: España`, `region: España` e `idioma: es`.
-- `url_traduccion`: servicio utilizado para traducir titulares y resúmenes al español.
+- `ruta_repositorio`: ruta local del repositorio; por defecto `.`
+- `fuentes`: fuentes RSS españolas procesadas; deben indicar `pais: España` y `region: España`.
 
-Las opciones `RUTA_REPOSITORIO` y `URL_TRADUCCION` pueden definirse en el entorno.
-Si el servicio de traducción no responde, se conserva el texto original.
+La opción `RUTA_REPOSITORIO` puede definirse en el entorno.
+No se realizan traducciones ni verificaciones de idioma sobre titulares o resúmenes.
 
 ## Programación diaria
 

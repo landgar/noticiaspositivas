@@ -4,8 +4,6 @@ hora_generacion_diaria: "09:00"
 cantidad_noticias: 10
 ventana_horas: 24
 usar_resumenes: true
-ruta_repositorio: "."
-url_traduccion: "https://translate.googleapis.com/translate_a/single"
 
 publicacion:
   subir_automaticamente: false

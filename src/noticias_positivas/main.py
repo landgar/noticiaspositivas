@@ -16,7 +16,6 @@ from .recopilacion import recopilar
 from .puntuacion import seleccionar
 from .redaccion import generar_titulo, redactar
 from .publicacion import crear_noticias_txt, publicar_cambios_diarios
-from .traduccion import traducir_texto
 from .modelos import Noticia
 
 
@@ -36,22 +35,9 @@ def ejecutar(configuracion: dict) -> None:
         configuracion.get("ventana_horas", 24),
     )
     seleccionadas = seleccionar(noticias, configuracion.get("cantidad_noticias", 10))
+    seleccionadas = list(seleccionadas)
     if not seleccionadas:
         raise RuntimeError("No se encontraron noticias dentro de la ventana configurada.")
-
-    url_traduccion = configuracion.get("url_traduccion", "")
-    seleccionadas = [
-        Noticia(
-            titulo=traducir_texto(noticia.titulo, url_traduccion),
-            enlace=noticia.enlace,
-            fuente=noticia.fuente,
-            resumen=traducir_texto(noticia.resumen, url_traduccion),
-            publicada=noticia.publicada,
-            puntuacion=noticia.puntuacion,
-            imagen=noticia.imagen,
-        )
-        for noticia in seleccionadas
-    ]
 
     zona_horaria = configuracion.get("zona_horaria", "Europe/Madrid")
     fecha = datetime.now(ZoneInfo(zona_horaria))
