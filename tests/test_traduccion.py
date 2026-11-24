@@ -37,9 +37,10 @@ def test_traduce_texto_espanol_sin_pasar_por_heuristico(monkeypatch):
     modulo._CACHE_TRADUCCION.clear()
     monkeypatch.setattr(modulo.requests, "get", responder)
 
-    resultado = traducir_texto("Avance español confirmado", "https://api.mymemory.translated.net/get")
+    resultado = traducir_texto("Avance español confirmado", "https://translate.googleapis.com/translate_a/single")
     assert resultado == "Avance español confirmado"
-    assert "langpair=Autodetect|es" in urls[0]
+    assert "sl=auto" in urls[0]
+    assert "tl=es" in urls[0]
 
 
 def test_texto_vacio_no_llama_al_servicio(monkeypatch):
